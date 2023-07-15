@@ -51,9 +51,10 @@ class Azul():
             self.turn = 0 # index of player with the turn
             self.displays = [new_pile(0,0,0,0,0) for _ in range(num_displays + 1)]
             self.boards = [new_board(), new_board()]
+            self.first_player_token_location = -1 
             self.replenish_displays()
 
-    def load_game_state(self, player_count, bag, discard, round, turn, displays, boards):
+    def load_game_state(self, player_count, bag, discard, round, turn, displays, boards, first_player_token_location):
         self.player_count = player_count
         self.bag = bag
         self.discard = discard
@@ -99,7 +100,10 @@ class Azul():
         self.boards[self.turn]["rows"][row_i]["color"] = color_i
         self.boards[self.turn]["rows"][row_i]["count"] += count_to_row
         self.boards[self.turn]["floor"] += count_to_floor
-
+    
+        # taking from center, and the first player token is also there!
+        if display_i == len(self.displays) - 1 and self.first_player_token_location == -1:
+            self.first_player_token_location = self.turn # that player now owns this first player token (in their floor line...)
         self.turn = (self.turn + 1) % self.player_count
 
         assert sum([sum(display) for display in self.displays]) > 0, "implement triggering scoring when board is empty"

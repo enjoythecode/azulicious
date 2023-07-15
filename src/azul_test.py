@@ -19,7 +19,8 @@ def az2p_clean(): # 2 player Azul board, predefined
             new_pile(0, 0, 0, 0, 4),
             new_pile(0, 0, 0, 0, 0), # last display is the center
         ],
-        boards = [new_board(), new_board()]
+        boards = [new_board(), new_board()],
+        first_player_token_location = -1
     )
     return az
 
