@@ -14,7 +14,7 @@ def new_board():
     return {
         "grid": [[0 for _ in range(5)] for _ in range(5)],
         "rows": [new_row() for _ in range(5)],
-        "floor": 0
+        "floor": new_pile(0, 0, 0, 0, 0)
         }
 
 
@@ -62,6 +62,7 @@ class Azul():
         self.turn = turn
         self.displays = displays
         self.boards = boards
+        self.first_player_token_location = first_player_token_location
 
     def replenish_displays(self):
         for display_i in range(len(self.displays) - 1): # last "display" is the center, don't put tiles to it from the bag
@@ -82,7 +83,7 @@ class Azul():
         target_row = self.boards[self.turn]["rows"][row_i]
         
         assert tile_count > 0
-        assert target_row["color"] is None or (target_row["color"] == color_i and target_row["count"] < (row_i + 1))
+        assert target_row["color"] in [color_i, None]
         
         row_empty_spaces = (row_i + 1) - target_row["count"]
 
@@ -93,13 +94,19 @@ class Azul():
             count_to_row = row_empty_spaces
             count_to_floor = tile_count - row_empty_spaces
 
-        self.displays[display_i][color_i] = 0
-        print(self.boards[self.turn]["rows"][row_i], type(self.boards[self.turn]["rows"][row_i]))
+        # put the rest of the display on to the floor
+        for display_color_i in range(len(TILE_COLORS)):
+            if color_i != display_color_i:
+                self.displays[-1][display_color_i] += self.displays[display_i][display_color_i]
+                self.displays[display_i][display_color_i] = 0
 
-        print(self.boards[self.turn]["rows"][row_i])
+        # move the taken color to the player board on the selected row
+        self.displays[display_i][color_i] = 0
         self.boards[self.turn]["rows"][row_i]["color"] = color_i
         self.boards[self.turn]["rows"][row_i]["count"] += count_to_row
-        self.boards[self.turn]["floor"] += count_to_floor
+        self.boards[self.turn]["floor"][color_i] += count_to_floor
+
+
     
         # taking from center, and the first player token is also there!
         if display_i == len(self.displays) - 1 and self.first_player_token_location == -1:
